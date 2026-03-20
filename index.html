@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACUDE 2026 - Sistema Avanzado de Cuestionarios</title>
+    
+    <!-- BOOTSTRAP 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FONTAWESOME -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- ANIMATE.CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Sweet Alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Header con efecto glassmorphism */
+        .header-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Tarjetas de materias mejoradas */
+        .card-materia {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-materia:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-materia .card-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Iconos con gradiente */
+        .icono-materia {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+        
+        .card-materia:hover .icono-materia {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* Badges de información */
+        .badge-nivel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+            z-index: 2;
+        }
+        
+        .badge-area {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        
+        /* Indicador de preguntas */
+        .preguntas-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed #dee2e6;
+        }
+        
+        .preguntas-count {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .dificultad-indicator {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .dificultad-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        
+        .dificultad-dot.active {
+            background: #f1c40f;
+        }
+        
+        /* Botón comenzar */
+        .btn-comenzar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-comenzar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-comenzar:disabled {
+            background: #95a5a6;
+            transform: none;
+        }
+        
+        /* Spinner de carga */
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+        
+        .spinner-circle {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Filtros */
+        .filtros-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filtro-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            margin: 0.25rem;
+        }
+        
+        .filtro-btn:hover, .filtro-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+        
+        /* Texto de carga */
+        #loading-status {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container h1 {
+                font-size: 2rem;
+            }
+            
+            .badge-nivel, .badge-area {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        
+        <!-- HEADER MEJORADO -->
+        <div class="header-container text-center text-white animate__animated animate__fadeInDown">
+            <i class="fas fa-graduation-cap fa-4x mb-3" style="color: #667eea;"></i>
+            <h1 class="display-3 fw-bold mb-2">ACUDE 2026</h1>
+            <p class="lead fs-4 mb-0">Sistema Avanzado de Cuestionarios</p>
+            <p class="text-white-50 small mt-2">
+                <i class="fas fa-shield-alt me-1"></i>12 materias · 1200+ preguntas · Nivel MCAT
+            </p>
+        </div>
+        
+        <!-- FILTROS POR ÁREA -->
+        <div class="filtros-container animate__animated animate__fadeInUp" id="filtros-container" style="display: none;">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <button class="filtro-btn active" data-filtro="todos">📋 Todas las áreas</button>
+                <button class="filtro-btn" data-filtro="Troncal">📚 Troncales</button>
+                <button class="filtro-btn" data-filtro="Ciencias">🔬 Ciencias</button>
+                <button class="filtro-btn" data-filtro="Humanidades">📖 Humanidades</button>
+                <button class="filtro-btn" data-filtro="Ingeniería">⚙️ Ingeniería</button>
+                <button class="filtro-btn" data-filtro="Económicas">📊 Económicas</button>
+            </div>
+        </div>
+        
+        <!-- SPINNER DE CARGA -->
+        <div id="spinner" class="loading-spinner">
+            <div class="spinner-circle"></div>
+            <p id="loading-status" class="mb-2">Cargando banco de preguntas...</p>
+            <p class="text-white-50 small" id="loading-detalle">Inicializando sistema...</p>
+        </div>
+        
+        <!-- CONTENEDOR DE TARJETAS -->
+        <div class="row g-4" id="contenedor-materias" style="display: none;"></div>
+        
+        <!-- ESTADÍSTICAS GENERALES -->
+        <div id="stats-generales" class="text-center text-white mt-4" style="display: none;">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                        <i class="fas fa-book-open me-2 text-primary"></i>
+                        <span id="total-materias">0</span> Materias
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                        <i class="fas fa-question-circle me-2 text-success"></i>
+                        <span id="total-preguntas">0</span> Preguntas
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                        <i class="fas fa-chart-line me-2 text-warning"></i>
+                        <span id="nivel-promedio">0</span> Nivel promedio
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PIE DE PÁGINA -->
+        <div class="text-center text-white-50 mt-5 small">
+            <p>
+                <i class="fas fa-code-branch me-1"></i>
+                Desarrollado con Bootstrap, FontAwesome y Sweet Alert · 
+                <i class="fas fa-dragon ms-1"></i> Modo Difícil Activado
+            </p>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ============================================ -->
+    <!-- CARGA INTELIGENTE DE ARCHIVOS - VERSIÓN OPTIMIZADA -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // CONFIGURACIÓN: 12 MATERIAS UNIFICADAS (SIN REPETICIÓN)
+        // ============================================
+        const archivosACargar = [
+            // ARCHIVO BASE (OBLIGATORIO)
+            'js/datos.js',
+            
+            // MATERIAS TRONCALES (3)
+            'js/datos-lengua.js',
+            'js/datos-razonamiento.js',
+            'js/datos-ingles.js',
+            
+            // CIENCIAS QUÍMICO-BIOLÓGICAS (4)
+            'js/datos-biologia.js',
+            'js/datos-quimica.js',
+            'js/datos-fisica.js',
+            'js/datos-matematicas.js',
+            
+            // CIENCIAS SOCIALES Y HUMANIDADES (3)
+            'js/datos-historia.js',
+            'js/datos-literatura.js',
+            'js/datos-derecho.js',
+            
+            // CIENCIAS EXACTAS INGENIERÍA (3)
+            'js/datos-quimica-ing.js',
+            'js/datos-matematicas-ing.js',
+            'js/datos-fisica-ing.js',
+            
+            // CIENCIAS ECONÓMICO ADMINISTRATIVAS (2)
+            'js/datos-economia.js',
+            'js/datos-mates-financieras.js'
+        ];
+        
+        console.log("📂 Archivos a cargar (versión unificada):", archivosACargar.length);
+        
+        let archivosCargados = 0;
+        let archivosEncontrados = 0;
+        
+        // Función para cargar cada script
+        function cargarScript(src) {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    console.log(`✅ Cargado: ${src}`);
+                    archivosCargados++;
+                    archivosEncontrados++;
+                    actualizarProgresoCarga();
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn(`⚠️ No encontrado: ${src} (se omite)`);
+                    archivosCargados++;
+                    actualizarProgresoCarga();
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Actualizar barra de progreso (simulada)
+        function actualizarProgresoCarga() {
+            const porcentaje = (archivosCargados / archivosACargar.length) * 100;
+            document.getElementById('loading-detalle').textContent = 
+                `Progreso: ${Math.round(porcentaje)}% (${archivosEncontrados} archivos encontrados)`;
+        }
+        
+        // Cargar todos los archivos en secuencia
+        async function cargarTodosLosArchivos() {
+            for (const archivo of archivosACargar) {
+                await cargarScript(archivo);
+            }
+            
+            // Pequeña pausa para asegurar que todo esté listo
+            setTimeout(inicializarPagina, 200);
+        }
+        
+        // ============================================
+        // INICIALIZAR PÁGINA CON LOS DATOS CARGADOS
+        // ============================================
+        function inicializarPagina() {
+            console.log("🚀 Inicializando página con datos unificados...");
+            
+            // Ocultar spinner
+            document.getElementById('spinner').style.display = 'none';
+            
+            // Verificar que DATOS_ACUDE existe
+            if (typeof DATOS_ACUDE === 'undefined' || !DATOS_ACUDE.materias) {
+                console.error("❌ Error: DATOS_ACUDE no está disponible");
+                document.getElementById('loading-status').textContent = 'Error al cargar datos';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error crítico',
+                    html: `
+                        <p>No se pudo cargar el banco de datos.</p>
+                        <p class="small text-muted">Verifica que js/datos.js exista en la carpeta correcta.</p>
+                    `,
+                    confirmButtonText: 'Reintentar',
+                    showCancelButton: true,
+                    cancelButtonText: 'Ver instrucciones'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    } else {
+                        Swal.fire({
+                            title: 'Instrucciones',
+                            html: `
+                                <div class="text-start">
+                                    <p>1. Crea la carpeta <strong>js/</strong> en tu proyecto</p>
+                                    <p>2. Asegúrate de que <strong>datos.js</strong> esté dentro</p>
+                                    <p>3. Los archivos de preguntas deben estar en la misma carpeta</p>
+                                </div>
+                            `,
+                            icon: 'info'
+                        });
+                    }
+                });
+                return;
+            }
+            
+            const contenedor = document.getElementById('contenedor-materias');
+            const materias = DATOS_ACUDE.materias;
+            
+            console.log("📚 Materias disponibles (unificadas):", materias.length, materias.map(m => m.nombre));
+            
+            if (!materias || materias.length === 0) {
+                document.getElementById('loading-status').textContent = 'No hay materias disponibles';
+                return;
+            }
+            
+            // Actualizar estado
+            document.getElementById('loading-status').textContent = '¡Listo!';
+            document.getElementById('filtros-container').style.display = 'block';
+            contenedor.style.display = 'flex';
+            
+            // Calcular estadísticas
+            let totalPreguntasSistema = 0;
+            let sumaNiveles = 0;
+            let materiasConPreguntas = 0;
+            
+            // Generar tarjetas
+            materias.forEach(materia => {
+                // Verificar cuántas preguntas tiene
+                let totalPreguntas = 0;
+                let nivelPromedio = 3; // Por defecto
+                
+                if (DATOS_ACUDE.preguntas && DATOS_ACUDE.preguntas[materia.id]) {
+                    totalPreguntas = DATOS_ACUDE.preguntas[materia.id].length;
+                    
+                    // Calcular nivel promedio de las preguntas (si existen)
+                    if (totalPreguntas > 0) {
+                        materiasConPreguntas++;
+                        const preguntas = DATOS_ACUDE.preguntas[materia.id];
+                        const sumaNivelesMateria = preguntas.reduce((acc, p) => acc + (p.dificultad || 3), 0);
+                        nivelPromedio = Math.round(sumaNivelesMateria / totalPreguntas);
+                        sumaNiveles += sumaNivelesMateria;
+                    }
+                }
+                
+                totalPreguntasSistema += totalPreguntas;
+                
+                const col = document.createElement('div');
+                col.className = 'col-lg-4 col-md-6 col-12';
+                col.setAttribute('data-area', materia.area || 'General');
+                
+                // Generar dots de dificultad
+                let dotsDificultad = '';
+                for (let i = 1; i <= 5; i++) {
+                    dotsDificultad += `<span class="dificultad-dot ${i <= nivelPromedio ? 'active' : ''}"></span>`;
+                }
+                
+                col.innerHTML = `
+                    <div class="card card-materia animate__animated animate__fadeInUp">
+                        <div class="card-body">
+                            <span class="badge-nivel">
+                                <i class="fas fa-layer-group me-1"></i>${materia.nivel || 'Intermedio'}
+                            </span>
+                            <span class="badge-area">
+                                <i class="fas fa-folder me-1"></i>${materia.area || 'General'}
+                            </span>
+                            
+                            <div class="text-center">
+                                <i class="fas ${materia.icono} icono-materia"></i>
+                                <h3 class="h4 mb-2 fw-bold">${materia.nombre}</h3>
+                                <p class="text-muted small mb-3">${materia.descripcion || 'Practica con preguntas estilo MCAT'}</p>
+                                
+                                <div class="preguntas-stats">
+                                    <span class="preguntas-count">
+                                        <i class="fas fa-question-circle me-1"></i>
+                                        ${totalPreguntas} preguntas
+                                    </span>
+                                    <div class="dificultad-indicator" title="Nivel ${nivelPromedio}/5">
+                                        ${dotsDificultad}
+                                    </div>
+                                </div>
+                                
+                                ${totalPreguntas > 0 ? 
+                                    `<a href="examen.html?materia=${materia.id}" 
+                                        class="btn btn-comenzar w-100 mt-3">
+                                        <i class="fas fa-play-circle me-1"></i>Comenzar práctica
+                                        <i class="fas fa-arrow-right ms-1 small"></i>
+                                    </a>` : 
+                                    `<button class="btn btn-comenzar w-100 mt-3" disabled 
+                                        style="background: #95a5a6; cursor: not-allowed;">
+                                        <i class="fas fa-ban me-1"></i>Sin preguntas
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                contenedor.appendChild(col);
+            });
+            
+            // Actualizar estadísticas globales
+            document.getElementById('stats-generales').style.display = 'block';
+            document.getElementById('total-materias').textContent = materias.length;
+            document.getElementById('total-preguntas').textContent = totalPreguntasSistema;
+            
+            const nivelGlobal = materiasConPreguntas > 0 
+                ? (sumaNiveles / totalPreguntasSistema).toFixed(1) 
+                : '3.0';
+            document.getElementById('nivel-promedio').textContent = nivelGlobal;
+            
+            console.log("✅ Página inicializada correctamente");
+            console.log(`📊 Total preguntas en sistema: ${totalPreguntasSistema}`);
+        }
+        
+        // ============================================
+        // FILTROS POR ÁREA
+        // ============================================
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filtro-btn')) {
+                // Actualizar clase activa
+                document.querySelectorAll('.filtro-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                const filtro = e.target.dataset.filtro;
+                const tarjetas = document.querySelectorAll('[data-area]');
+                
+                tarjetas.forEach(tarjeta => {
+                    if (filtro === 'todos' || tarjeta.dataset.area === filtro) {
+                        tarjeta.style.display = 'block';
+                        // Añadir animación
+                        tarjeta.classList.add('animate__fadeIn');
+                        setTimeout(() => {
+                            tarjeta.classList.remove('animate__fadeIn');
+                        }, 500);
+                    } else {
+                        tarjeta.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar mensaje si no hay resultados
+                const visibles = document.querySelectorAll('[data-area]:not([style*="display: none"])').length;
+                if (visibles === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Sin resultados',
+                        text: 'No hay materias en esta categoría',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                }
+            }
+        });
+        
+        // Iniciar carga cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', cargarTodosLosArchivos);
+        
+    </script>
+</body>
+</html>

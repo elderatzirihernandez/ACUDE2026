@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen MCAT - ACUDE 2026</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- KaTeX para fórmulas matemáticas y químicas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Sweet Alert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Anime.js para animaciones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Navbar mejorado */
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--dark), #16213e);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .navbar-custom h4 {
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .navbar-custom small {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .btn-volver {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-volver:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateX(-5px);
+        }
+        
+        .badge-contador {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Panel de configuración */
+        .config-card {
+            background: white;
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            margin: 2rem auto;
+            max-width: 700px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .config-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-cantidad {
+            min-width: 150px;
+            margin: 0.5rem;
+            padding: 1.2rem;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: var(--dark);
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-cantidad:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn-cantidad::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-cantidad:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-cantidad i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+        
+        /* Área del examen */
+        .pregunta-container {
+            background: white;
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Header de la pregunta */
+        .pregunta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .badge-dificultad {
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .dificultad-1 { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .dificultad-2 { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
+        .dificultad-3 { background: #ffe5b4; color: #8a6d3b; border-left: 5px solid #fd7e14; }
+        .dificultad-4 { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+        .dificultad-5 { background: #f8d7da; color: #721c24; border-left: 5px solid #8b0000; background: #c00; color: white; }
+        
+        .badge-area {
+            background: var(--dark);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        
+        .pregunta-numero {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--dark);
+            background: #e9ecef;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+        }
+        
+        /* Temas */
+        .temas-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .tema-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Contexto */
+        .contexto-pregunta {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            border-left: 5px solid var(--primary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: #2c3e50;
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+        
+        /* Texto de pregunta */
+        .texto-pregunta {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            color: var(--dark);
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        /* Opciones */
+        .opciones-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .opcion-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .opcion-item:hover:not(.disabled) {
+            transform: translateX(10px);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+        }
+        
+        .opcion-item.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .opcion-item.selected .text-muted {
+            color: white !important;
+        }
+        
+        .opcion-item .letra {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: #e9ecef;
+            color: var(--dark);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .opcion-item.selected .letra {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .opcion-correcta {
+            background: #28a745 !important;
+            color: white !important;
+            border-color: #1e7e34 !important;
+        }
+        
+        .opcion-correcta .letra {
+            background: white !important;
+            color: #28a745 !important;
+        }
+        
+        .opcion-incorrecta {
+            background: #dc3545 !important;
+            color: white !important;
+            border-color: #a71d2a !important;
+        }
+        
+        .opcion-incorrecta .letra {
+            background: white !important;
+            color: #dc3545 !important;
+        }
+        
+        .opcion-item.disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        /* Explicación */
+        .explicacion-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #e3f2fd;
+            border-radius: 15px;
+            border-left: 5px solid #2196f3;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .explicacion-titulo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        
+        .explicacion-titulo i {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        /* Barra de progreso */
+        .progress-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .progress-custom {
+            height: 12px;
+            border-radius: 6px;
+            background: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .progress-bar-custom {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar-custom::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        /* Botones de navegación */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .btn-nav {
+            min-width: 140px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-nav:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .btn-anterior {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-siguiente {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-siguiente:last-child {
+            background: var(--success);
+        }
+        
+        /* Contador de respuestas */
+        .respuestas-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .badge-respuestas {
+            background: var(--dark);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+        }
+        
+        .badge-marcadas {
+            background: var(--warning);
+            color: var(--dark);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        /* Botones de acción */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-action {
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-3px);
+        }
+        
+        .btn-finalizar {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-marcar {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: var(--dark);
+        }
+        
+        .btn-marcado {
+            background: var(--warning) !important;
+            color: var(--dark) !important;
+            border: 2px solid #e67e22;
+        }
+        
+        /* Pregunta marcada */
+        .pregunta-marcada {
+            border: 3px solid var(--warning) !important;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3) !important;
+            position: relative;
+        }
+        
+        .pregunta-marcada::before {
+            content: '📌';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--warning);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            animation: bounce 1s infinite;
+        }
+        
+        /* Spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            flex-direction: column;
+        }
+        
+        .spinner-circle {
+            width: 70px;
+            height: 70px;
+            border: 5px solid #e9ecef;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Animaciones */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .config-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .btn-cantidad {
+                min-width: 100%;
+                margin: 0.25rem 0;
+            }
+            
+            .pregunta-container {
+                padding: 1.5rem;
+            }
+            
+            .pregunta-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn-nav {
+                width: 100%;
+            }
+            
+            .respuestas-info {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .badge-respuestas, .badge-marcadas {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- BARRA DE NAVEGACIÓN MEJORADA -->
+    <nav class="navbar-custom text-white">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <div>
+                    <a href="index.html" class="btn-volver">
+                        <i class="fas fa-arrow-left me-2"></i>Materias
+                    </a>
+                </div>
+                <div class="text-center">
+                    <h4 class="mb-0" id="titulo-materia">Cargando...</h4>
+                    <small id="subtitulo-materia" class="opacity-75"></small>
+                </div>
+                <div>
+                    <span class="badge-contador" id="contador-preguntas">
+                        <i class="fas fa-question-circle me-1"></i> 0/0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container py-4">
+        <!-- SPINNER DE CARGA MEJORADO -->
+        <div id="spinner" class="spinner-container">
+            <div class="spinner-circle"></div>
+            <h5 class="text-dark">Preparando tu examen...</h5>
+            <p class="text-muted">Cargando preguntas de alto nivel</p>
+        </div>
+        
+        <!-- PANEL DE CONFIGURACIÓN -->
+        <div id="panel-configuracion" class="config-card text-center" style="display: none;">
+            <div class="config-icon">
+                <i class="fas fa-sliders-h"></i>
+            </div>
+            <h2 class="mb-3 fw-bold">Configura tu examen</h2>
+            <p class="text-muted mb-4">¿Cuántas preguntas deseas practicar?</p>
+            
+            <div class="d-flex justify-content-center flex-wrap mb-4">
+                <button class="btn btn-cantidad" data-cantidad="20">
+                    <i class="fas fa-list-ol me-2"></i>20 preguntas
+                    <small class="d-block text-muted mt-1">Práctica rápida</small>
+                </button>
+                <button class="btn btn-cantidad" data-cantidad="50">
+                    <i class="fas fa-list-ol me-2"></i>50 preguntas
+                    <small class="d-block text-muted mt-1">Examen completo</small>
+                </button>
+                <button class="btn btn-cantidad" data-cantidad="100">
+                    <i class="fas fa-list-ol me-2"></i>100 preguntas
+                    <small class="d-block text-muted mt-1">Práctica intensiva</small>
+                </button>
+            </div>
+            
+            <div class="alert alert-info text-start" role="alert">
+                <div class="d-flex">
+                    <i class="fas fa-info-circle fa-2x me-3"></i>
+                    <div>
+                        <strong>🎯 Modo MCAT Avanzado:</strong>
+                        <ul class="mb-0 mt-2 small">
+                            <li>✅ Preguntas con contexto clínico y experimental</li>
+                            <li>✅ Opciones reordenadas aleatoriamente en cada intento</li>
+                            <li>✅ Nivel de dificultad progresivo</li>
+                            <li>✅ Explicaciones detalladas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <span class="badge bg-dark" id="preguntas-disponibles">
+                    <i class="fas fa-database me-1"></i> Cargando...
+                </span>
+            </div>
+        </div>
+        
+        <!-- ÁREA DEL EXAMEN -->
+        <div id="area-examen" style="display: none;">
+            <!-- BARRA DE PROGRESO MEJORADA -->
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>
+                        <i class="fas fa-tasks me-2 text-primary"></i>
+                        <span id="respuestas-contador">0 respondidas de 0</span>
+                    </span>
+                    <span>
+                        <i class="fas fa-flag me-2 text-warning"></i>
+                        <span id="marcadas-contador">0 marcadas</span>
+                    </span>
+                </div>
+                <div class="progress-custom">
+                    <div id="barra-progreso" class="progress-bar-custom" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- PREGUNTA ACTUAL -->
+            <div class="pregunta-container" id="pregunta-container">
+                <!-- Header de la pregunta -->
+                <div class="pregunta-header">
+                    <div>
+                        <span id="badge-dificultad" class="badge-dificultad dificultad-3">
+                            <i class="fas fa-star me-1"></i> Nivel 3/5
+                        </span>
+                        <span id="badge-area" class="badge-area">
+                            <i class="fas fa-folder me-1"></i> Cargando...
+                        </span>
+                    </div>
+                    <span class="pregunta-numero" id="pregunta-numero">
+                        Pregunta 1 de 0
+                    </span>
+                </div>
+                
+                <!-- Temas de la pregunta -->
+                <div id="temas-container" class="temas-container"></div>
+                
+                <!-- CONTEXTO (si existe) -->
+                <div id="contexto-pregunta" class="contexto-pregunta" style="display: none;"></div>
+                
+                <!-- TEXTO DE LA PREGUNTA -->
+                <div id="texto-pregunta" class="texto-pregunta"></div>
+                
+                <!-- OPCIONES -->
+                <div id="opciones-container" class="opciones-grid"></div>
+                
+                <!-- EXPLICACIÓN -->
+                <div id="explicacion-container" class="explicacion-container" style="display: none;">
+                    <div class="explicacion-titulo">
+                        <i class="fas fa-lightbulb"></i>
+                        <h5 class="mb-0">Explicación</h5>
+                    </div>
+                    <div id="texto-explicacion" class="text-dark"></div>
+                </div>
+            </div>
+            
+            <!-- BOTONES DE NAVEGACIÓN -->
+            <div class="nav-buttons">
+                <button id="btn-anterior" class="btn-nav btn-anterior" disabled>
+                    <i class="fas fa-arrow-left me-2"></i>Anterior
+                </button>
+                
+                <div class="respuestas-info">
+                    <span class="badge-respuestas" id="badge-respuestas">
+                        <i class="fas fa-check-circle me-1"></i> 0/0
+                    </span>
+                    <span class="badge-marcadas" id="badge-marcadas" style="display: none;">
+                        <i class="fas fa-flag me-1"></i> <span id="marcadas-count">0</span>
+                    </span>
+                </div>
+                
+                <button id="btn-siguiente" class="btn-nav btn-siguiente">
+                    Siguiente <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+            
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="action-buttons">
+                <button id="btn-finalizar" class="btn-action btn-finalizar">
+                    <i class="fas fa-check-circle me-2"></i>Finalizar y ver resultados
+                </button>
+                <button id="btn-marcar" class="btn-action btn-marcar">
+                    <i class="fas fa-flag me-2"></i>Marcar para revisar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script principal del examen -->
+    <script src="js/examen.js"></script>
+
+    <script>
+        // MISMA LISTA QUE EN index.html
+        const archivosACargar = [
+            // ARCHIVO BASE (OBLIGATORIO)
+            'js/datos.js',
+            
+            // MATERIAS TRONCALES (3)
+            'js/datos-lengua.js',
+            'js/datos-razonamiento.js',
+            'js/datos-ingles.js',
+            
+            // CIENCIAS QUÍMICO-BIOLÓGICAS (4)
+            'js/datos-biologia.js',
+            'js/datos-quimica.js',
+            'js/datos-fisica.js',
+            'js/datos-matematicas.js',
+            
+            // CIENCIAS SOCIALES Y HUMANIDADES (3)
+            'js/datos-historia.js',
+            'js/datos-literatura.js',
+            'js/datos-derecho.js',
+            
+            // CIENCIAS EXACTAS INGENIERÍA (3)
+            'js/datos-quimica-ing.js',
+            'js/datos-matematicas-ing.js',
+            'js/datos-fisica-ing.js',
+            
+            // CIENCIAS ECONÓMICO ADMINISTRATIVAS (2)
+            'js/datos-economia.js',
+            'js/datos-mates-financieras.js'
+        ];
+        
+        console.log("📂 Archivos a cargar en examen:", archivosACargar);
+        
+        let archivosCargados = 0;
+        const totalArchivos = archivosACargar.length;
+        
+        function cargarScript(src) {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    console.log(`✅ Cargado: ${src}`);
+                    archivosCargados++;
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn(`⚠️ No encontrado: ${src} (se omite)`);
+                    archivosCargados++;
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Cargar todos los archivos en secuencia
+        async function cargarTodosLosArchivos() {
+            console.log("⏳ Comenzando carga de archivos...");
+            
+            for (const archivo of archivosACargar) {
+                await cargarScript(archivo);
+            }
+            
+            console.log("✅ Todos los archivos cargados, iniciando examen...");
+            
+            // Inicializar examen (la función está en examen.js)
+            if (typeof inicializarExamenConDatos === 'function') {
+                inicializarExamenConDatos();
+            } else {
+                console.error("❌ función inicializarExamenConDatos no encontrada");
+            }
+        }
+        
+        // Iniciar carga cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', cargarTodosLosArchivos);
+    </script>
+</body>
+</html>
